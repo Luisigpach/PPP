@@ -204,26 +204,55 @@ class download:
     # This function downloads the .sp3 file given the GPS week and day in the 
     # sp3FilesDirectory with the filename of the obs file:
     def sp3File(gpsTime, obsFile): # One file for each gps week and day
-        sp3zFilename = "igs" + str(gpsTime[0]) + str(gpsTime[1]) + ".sp3.Z"
-        sp3zUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + sp3zFilename
         
-        try:
-            # Makes request of URL, stores response in variable r
-            r = requests.get(sp3zUrl)
-
-            # Opens a local file for writing to
-            os.chdir(sp3FilesDir)
-            sp3zNewFilename = obsFile.split(".")[0]+".sp3.Z"
-            sp3zFileDir = os.path.join(sp3FilesDir, sp3zNewFilename)
-            with open(sp3zNewFilename, 'wb') as fd:
-                for chunk in r.iter_content(chunk_size=1000):
-                    fd.write(chunk)
+        if os.path.isfile(os.path.join(sp3FilesDir, obsFile.split(".")[0]+".sp3")) == True:
+            return
+        if os.path.isfile(os.path.join(clsFilesDir, obsFile.split(".")[0]+".sp3")) == False:
+            sp3zFilename = "igs" + str(gpsTime[0]) + str(gpsTime[1]) + ".sp3.Z"
+            sp3zUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + sp3zFilename
+            
             try:
-                subprocess.call(["winrar", 'x', '-y', sp3zFileDir], cwd = sp3FilesDir, stdout = subprocess.PIPE)
-                os.remove(sp3zFileDir) # remove .sp3.Z file and keep only .sp3 file
-            except Exception as e:
-                print("Error extracting dcb file:" + str(e))
-                os.remove(sp3zFileDir) # remove .sp3.Z file and keep only .sp3 file
+                # Makes request of URL, stores response in variable r
+                r = requests.get(sp3zUrl)
+
+                # Opens a local file for writing to
+                os.chdir(sp3FilesDir)
+                sp3zNewFilename = obsFile.split(".")[0]+".sp3.Z"
+                sp3zFileDir = os.path.join(sp3FilesDir, sp3zNewFilename)
+                with open(sp3zNewFilename, 'wb') as fd:
+                    for chunk in r.iter_content(chunk_size=1000):
+                        fd.write(chunk)
+                try:
+                    subprocess.call(["winrar", 'x', '-y', sp3zFileDir], cwd = sp3FilesDir, stdout = subprocess.PIPE)
+                    os.remove(sp3zFileDir) # remove .sp3.Z file and keep only .sp3 file
+                except Exception as e:
+                    print("Error extracting dcb file:" + str(e))
+                    os.remove(sp3zFileDir) # remove .sp3.Z file and keep only .sp3 file
+                    sp3zFilename = "igr" + str(gpsTime[0]) + str(gpsTime[1]) + ".sp3.Z"
+                    sp3zUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + sp3zFilename
+                    try:
+                        # Makes request of URL, stores response in variable r
+                        r = requests.get(sp3zUrl)
+
+                        # Opens a local file of same name as remote file for writing to
+                        os.chdir(sp3FilesDir)
+                        sp3zNewFilename = obsFile.split(".")[0]+".sp3.Z"
+                        sp3zFileDir = os.path.join(sp3FilesDir, sp3zNewFilename)
+                        with open(sp3zNewFilename, 'wb') as fd:
+                            for chunk in r.iter_content(chunk_size=1000):
+                                fd.write(chunk)
+                        try:
+                            subprocess.call(["winrar", 'x', '-y', sp3zFileDir], cwd = sp3FilesDir, stdout = subprocess.PIPE)
+                            os.remove(sp3zFileDir) # remove .sp3.Z file and keep only .sp3 file
+                        except Exception as e:
+                            print("Error extracting dcb file:" + str(e))
+                            os.remove(sp3zFileDir) # remove .sp3.Z file and keep only .sp3 file
+                        
+                    except Exception as e:
+                        print("Error:" + str(e))
+                        return 
+            
+            except Exception:
                 sp3zFilename = "igr" + str(gpsTime[0]) + str(gpsTime[1]) + ".sp3.Z"
                 sp3zUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + sp3zFilename
                 try:
@@ -248,53 +277,58 @@ class download:
                     print("Error:" + str(e))
                     return 
         
-        except Exception:
-            sp3zFilename = "igr" + str(gpsTime[0]) + str(gpsTime[1]) + ".sp3.Z"
-            sp3zUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + sp3zFilename
-            try:
-                # Makes request of URL, stores response in variable r
-                r = requests.get(sp3zUrl)
-
-                # Opens a local file of same name as remote file for writing to
-                os.chdir(sp3FilesDir)
-                sp3zNewFilename = obsFile.split(".")[0]+".sp3.Z"
-                sp3zFileDir = os.path.join(sp3FilesDir, sp3zNewFilename)
-                with open(sp3zNewFilename, 'wb') as fd:
-                    for chunk in r.iter_content(chunk_size=1000):
-                        fd.write(chunk)
-                try:
-                    subprocess.call(["winrar", 'x', '-y', sp3zFileDir], cwd = sp3FilesDir, stdout = subprocess.PIPE)
-                    os.remove(sp3zFileDir) # remove .sp3.Z file and keep only .sp3 file
-                except Exception as e:
-                    print("Error extracting dcb file:" + str(e))
-                    os.remove(sp3zFileDir) # remove .sp3.Z file and keep only .sp3 file
-                
-            except Exception as e:
-                print("Error:" + str(e))
-                return 
     
     
     def clsFile(gpsTime, obsFile): # One file for each gps week and day
-        clszFilename = "igs" + str(gpsTime[0]) + str(gpsTime[1]) + ".cls.Z"
-        clszUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + clszFilename
-        
-        try:
-            # Makes request of URL, stores response in variable r
-            r = requests.get(clszUrl)
-
-            # Opens a local file for writing to
-            os.chdir(clsFilesDir)
-            clszNewFilename = obsFile.split(".")[0]+".cls.Z"
-            clszFileDir = os.path.join(clsFilesDir, clszNewFilename)
-            with open(clszNewFilename, 'wb') as fd:
-                for chunk in r.iter_content(chunk_size=1000):
-                    fd.write(chunk)
+    
+        if os.path.isfile(os.path.join(clsFilesDir, obsFile.split(".")[0]+".cls")) == True:
+            return
+        if os.path.isfile(os.path.join(clsFilesDir, obsFile.split(".")[0]+".cls")) == False:
+            clszFilename = "igs" + str(gpsTime[0]) + str(gpsTime[1]) + ".cls.Z"
+            clszUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + clszFilename
+            
             try:
-                subprocess.call(["winrar", 'x', '-y', clszFileDir], cwd = clsFilesDir, stdout = subprocess.PIPE)
-                os.remove(clszFileDir) # remove .cls.Z file and keep only .cls file
-            except Exception as e:
-                print("Error extracting dcb file:" + str(e))
-                os.remove(clszFileDir) # remove .cls.Z file and keep only .cls file
+                # Makes request of URL, stores response in variable r
+                r = requests.get(clszUrl)
+
+                # Opens a local file for writing to
+                os.chdir(clsFilesDir)
+                clszNewFilename = obsFile.split(".")[0]+".cls.Z"
+                clszFileDir = os.path.join(clsFilesDir, clszNewFilename)
+                with open(clszNewFilename, 'wb') as fd:
+                    for chunk in r.iter_content(chunk_size=1000):
+                        fd.write(chunk)
+                try:
+                    subprocess.call(["winrar", 'x', '-y', clszFileDir], cwd = clsFilesDir, stdout = subprocess.PIPE)
+                    os.remove(clszFileDir) # remove .cls.Z file and keep only .cls file
+                except Exception as e:
+                    print("Error extracting dcb file:" + str(e))
+                    os.remove(clszFileDir) # remove .cls.Z file and keep only .cls file
+                    clszFilename = "igr" + str(gpsTime[0]) + str(gpsTime[1]) + ".cls.Z"
+                    clszUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + clszFilename
+                    try:
+                        # Makes request of URL, stores response in variable r
+                        r = requests.get(clszUrl)
+
+                        # Opens a local file of same name as remote file for writing to
+                        os.chdir(clsFilesDir)
+                        clszNewFilename = obsFile.split(".")[0]+".cls.Z"
+                        clszFileDir = os.path.join(clsFilesDir, clszNewFilename)
+                        with open(clszNewFilename, 'wb') as fd:
+                            for chunk in r.iter_content(chunk_size=1000):
+                                fd.write(chunk)
+                        try:
+                            subprocess.call(["winrar", 'x', '-y', clszFileDir], cwd = clsFilesDir, stdout = subprocess.PIPE)
+                            os.remove(clszFileDir) # remove .cls.Z file and keep only .cls file
+                        except Exception as e:
+                            print("Error extracting dcb file:" + str(e))
+                            os.remove(clszFileDir) # remove .cls.Z file and keep only .cls file
+                        
+                    except Exception as e:
+                        print("Error:" + str(e))
+                        return 
+            
+            except Exception:
                 clszFilename = "igr" + str(gpsTime[0]) + str(gpsTime[1]) + ".cls.Z"
                 clszUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + clszFilename
                 try:
@@ -318,56 +352,62 @@ class download:
                 except Exception as e:
                     print("Error:" + str(e))
                     return 
-        
-        except Exception:
-            clszFilename = "igr" + str(gpsTime[0]) + str(gpsTime[1]) + ".cls.Z"
-            clszUrl = "https://cddis.nasa.gov/archive/gps/products/" + str(gpsTime[0]) + "/" + clszFilename
-            try:
-                # Makes request of URL, stores response in variable r
-                r = requests.get(clszUrl)
-
-                # Opens a local file of same name as remote file for writing to
-                os.chdir(clsFilesDir)
-                clszNewFilename = obsFile.split(".")[0]+".cls.Z"
-                clszFileDir = os.path.join(clsFilesDir, clszNewFilename)
-                with open(clszNewFilename, 'wb') as fd:
-                    for chunk in r.iter_content(chunk_size=1000):
-                        fd.write(chunk)
-                try:
-                    subprocess.call(["winrar", 'x', '-y', clszFileDir], cwd = clsFilesDir, stdout = subprocess.PIPE)
-                    os.remove(clszFileDir) # remove .cls.Z file and keep only .cls file
-                except Exception as e:
-                    print("Error extracting dcb file:" + str(e))
-                    os.remove(clszFileDir) # remove .cls.Z file and keep only .cls file
-                
-            except Exception as e:
-                print("Error:" + str(e))
-                return 
     
     
     # This function downloads the iono file .21i, one for each utc year and day
     # with the filename of the obs file
     def ionoFile(utcTime, obsFile): 
-        iono21izFilename = "igsg" + str(utcTime[1]) + "0.21i.Z"
-        iono21izUrl = "https://cddis.nasa.gov/archive/gps/products/ionex/" + str(utcTime[0]) + "/" + str(utcTime[1]) + "/" + iono21izFilename
-       
-        try:
-            # Makes request of URL, stores response in variable r
-            r = requests.get(iono21izUrl)
-
-            # Opens a local file for writing to
-            os.chdir(ionoFilesDir)
-            iono21izNewFilename = obsFile.split(".")[0]+".21i.Z"
-            iono21izFileDir = os.path.join(ionoFilesDir, iono21izNewFilename)
-            with open(iono21izNewFilename, 'wb') as fd:
-                for chunk in r.iter_content(chunk_size=1000):
-                    fd.write(chunk)
+        
+        if os.path.isfile(os.path.join(ionoFilesDir, obsFile.split(".")[0]+".21i")) == True:
+            return
+        if os.path.isfile(os.path.join(ionoFilesDir, obsFile.split(".")[0]+".21i")) == False:
+            
+            iono21izFilename = "igsg" + str(utcTime[1]) + "0.21i.Z"
+            iono21izUrl = "https://cddis.nasa.gov/archive/gps/products/ionex/" + str(utcTime[0]) + "/" + str(utcTime[1]) + "/" + iono21izFilename
+           
             try:
-                subprocess.call(["winrar", 'x', '-y', iono21izFileDir], cwd = ionoFilesDir, stdout = subprocess.PIPE)
-                os.remove(iono21izFileDir) # remove .21i.Z file and keep only .21i file
-            except Exception as e:
-                print("Error extracting dcb file:" + str(e))
-                os.remove(iono21izFileDir) # remove .21i.Z file and keep only .21i file
+                # Makes request of URL, stores response in variable r
+                r = requests.get(iono21izUrl)
+
+                # Opens a local file for writing to
+                os.chdir(ionoFilesDir)
+                iono21izNewFilename = obsFile.split(".")[0]+".21i.Z"
+                iono21izFileDir = os.path.join(ionoFilesDir, iono21izNewFilename)
+                with open(iono21izNewFilename, 'wb') as fd:
+                    for chunk in r.iter_content(chunk_size=1000):
+                        fd.write(chunk)
+                try:
+                    subprocess.call(["winrar", 'x', '-y', iono21izFileDir], cwd = ionoFilesDir, stdout = subprocess.PIPE)
+                    os.remove(iono21izFileDir) # remove .21i.Z file and keep only .21i file
+                except Exception as e:
+                    print("Error extracting dcb file:" + str(e))
+                    os.remove(iono21izFileDir) # remove .21i.Z file and keep only .21i file
+                    iono21izFilename = "igrg" + str(utcTime[1]) + "0.21i.Z"
+                    iono21izUrl = "https://cddis.nasa.gov/archive/gps/products/ionex/" + str(utcTime[0]) + "/" + str(utcTime[1]) + "/" + iono21izFilename
+                    
+                    try:
+                        # Makes request of URL, stores response in variable r
+                        r = requests.get(iono21izUrl)
+
+                        # Opens a local file of same name as remote file for writing to
+                        os.chdir(ionoFilesDir)
+                        iono21izNewFilename = obsFile.split(".")[0]+".21i.Z"
+                        iono21izFileDir = os.path.join(ionoFilesDir, iono21izNewFilename)
+                        with open(iono21izNewFilename, 'wb') as fd:
+                            for chunk in r.iter_content(chunk_size=1000):
+                                fd.write(chunk)
+                        try:
+                            subprocess.call(["winrar", 'x', '-y', iono21izFileDir], cwd = ionoFilesDir, stdout = subprocess.PIPE)
+                            os.remove(iono21izFileDir) # remove .21i.Z file and keep only .21i file
+                        except Exception as e:
+                            print("Error extracting dcb file:" + str(e))
+                            os.remove(iono21izFileDir) # remove .21i.Z file and keep only .21i file
+
+                    except Exception as e:
+                        print("Error:" + str(e))
+                        return 
+            
+            except Exception:
                 iono21izFilename = "igrg" + str(utcTime[1]) + "0.21i.Z"
                 iono21izUrl = "https://cddis.nasa.gov/archive/gps/products/ionex/" + str(utcTime[0]) + "/" + str(utcTime[1]) + "/" + iono21izFilename
                 
@@ -392,32 +432,6 @@ class download:
                 except Exception as e:
                     print("Error:" + str(e))
                     return 
-        
-        except Exception:
-            iono21izFilename = "igrg" + str(utcTime[1]) + "0.21i.Z"
-            iono21izUrl = "https://cddis.nasa.gov/archive/gps/products/ionex/" + str(utcTime[0]) + "/" + str(utcTime[1]) + "/" + iono21izFilename
-            
-            try:
-                # Makes request of URL, stores response in variable r
-                r = requests.get(iono21izUrl)
-
-                # Opens a local file of same name as remote file for writing to
-                os.chdir(ionoFilesDir)
-                iono21izNewFilename = obsFile.split(".")[0]+".21i.Z"
-                iono21izFileDir = os.path.join(ionoFilesDir, iono21izNewFilename)
-                with open(iono21izNewFilename, 'wb') as fd:
-                    for chunk in r.iter_content(chunk_size=1000):
-                        fd.write(chunk)
-                try:
-                    subprocess.call(["winrar", 'x', '-y', iono21izFileDir], cwd = ionoFilesDir, stdout = subprocess.PIPE)
-                    os.remove(iono21izFileDir) # remove .21i.Z file and keep only .21i file
-                except Exception as e:
-                    print("Error extracting dcb file:" + str(e))
-                    os.remove(iono21izFileDir) # remove .21i.Z file and keep only .21i file
-
-            except Exception as e:
-                print("Error:" + str(e))
-                return 
     
     
     # This function downloads the eop file .erp, one for each gps week,
@@ -510,9 +524,9 @@ class download:
         if month > 9 and month <= 12:
             trim = "4"
             
-        if os.path.isfile(os.path.join(dcbFilesDir, str(utcTime[0]) + trim + ".BSX")) == True:
+        if os.path.isfile(os.path.join(dcbFilesDir, str(utcTime[0]) + trim + ".dcb")) == True:
             return
-        if os.path.isfile(os.path.join(dcbFilesDir, str(utcTime[0]) + trim + ".BSX")) == False:
+        if os.path.isfile(os.path.join(dcbFilesDir, str(utcTime[0]) + trim + ".dcb")) == False:
             if month <= 3:
                 dcbzFilename = "DLR0MGXFIN_" + str(utcTime[0]) + "001" + "0000_03L_01D_DCB.BSX.gz"
             if month > 3 and month <= 6:
@@ -617,8 +631,8 @@ class pos:
         effLatIndex = np.abs(effLat1 - effLat1Fix) < effLatErr
         effLat = effLat1[effLatIndex]
         effLatMean = np.mean(effLat)
-        effLatMax = np.max(effLat1)
-        effLatMin = np.min(effLat1)
+        effLatMax = np.max(effLat)
+        effLatMin = np.min(effLat)
         
         # Determining the mean effective longitude of the day:
         lonX = np.arange(0, len(longitude))
@@ -633,8 +647,8 @@ class pos:
         effLonIndex = np.abs(effLon1 - effLon1Fix) < effLonErr
         effLon = effLon1[effLonIndex]
         effLonMean = np.mean(effLon)
-        effLonMax = np.max(effLon1)
-        effLonMin = np.min(effLon1)
+        effLonMax = np.max(effLon)
+        effLonMin = np.min(effLon)
         
         # Determining the mean effective height of the day:
         heightX = np.arange(0, len(height))
@@ -649,8 +663,8 @@ class pos:
         effHeightIndex = np.abs(effHeight1 - effHeight1Fix) < effHeightErr
         effHeight = effHeight1[effHeightIndex]
         effHeightMean = np.mean(effHeight)
-        effHeightMax = np.max(effHeight1)
-        effHeightMin = np.min(effHeight1)
+        effHeightMax = np.max(effHeight)
+        effHeightMin = np.min(effHeight)
         
         return effLatMean, effLonMean, effHeightMean, [effLatMin, effLatMax], [effLonMin, effLonMax], [effHeightMin, effHeightMax]
     
@@ -685,7 +699,7 @@ class pos:
     # This function given a list of the local coordinates of each day 
     # and the day the measurements began and ended, gives a 3 graphs
     #  N-S, E-W, and U-D graphs:
-    def plotData(measurementsStartTime, east, north, up, stdEast, stdNorth, stdUp, errEast, errNorth, errUp):
+    def plotDataENU1(measurementsStartTime, east, north, up, stdEast, stdNorth, stdUp, errEast, errNorth, errUp):
         days = np.arange(0, len(measurementsStartTime))
         firstDay = str(measurementsStartTime[0].day) + "/" + str(measurementsStartTime[0].month) + "/" + str(measurementsStartTime[0].year)
         lastDay = str(measurementsStartTime[-1].day) + "/" + str(measurementsStartTime[-1].month) + "/" + str(measurementsStartTime[-1].year)
@@ -721,24 +735,71 @@ class pos:
         ax3.set_xlabel("Days", fontsize = 40) 
         ax3.grid(True)
         
-        plt.savefig("ENU.png")
+        plt.savefig("ENU1.png")
+        
+    def plotDataENU2(measurementsStartTime, lastEast, lastNorth, lastUp, lastStdEasts, lastStdNorths, lastStdUps):
+        days = np.arange(0, len(measurementsStartTime))
+        firstDay = str(measurementsStartTime[0].day) + "/" + str(measurementsStartTime[0].month) + "/" + str(measurementsStartTime[0].year)
+        lastDay = str(measurementsStartTime[-1].day) + "/" + str(measurementsStartTime[-1].month) + "/" + str(measurementsStartTime[-1].year)
+        numberOfDays = len(measurementsStartTime)
+        
+        os.chdir(resultsGraphsDir)
+        # Plot the north, east, and upward components over time
+        fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize = (20, 20))
+        ax1.errorbar(days, lastNorth, yerr = lastStdNorths, fmt = "o-", ecolor = "b", markersize = 14, capsize = 13, linewidth = 3)
+        ax1.legend(["Standard Desviation (BLUE)"], loc = "upper right")
+        ax1.set_ylim([np.min(lastNorth)-1.5*abs(np.max(lastStdNorths)), np.max(lastNorth)+1.5*abs(np.max(lastStdNorths))])
+        ax1.set_xlim([-1, len(days)+10])
+        ax1.set_ylabel('North - South (m)', fontsize = 20)     
+        ax1.set_title("Measurements starts on " + firstDay + " and ends on " + lastDay + " (The measurements take place during " + str(numberOfDays) + " days)", fontsize = 20)
+        ax1.grid(True)
+
+        ax2.set_ylabel("East - West (m)", fontsize = 20)
+        ax2.errorbar(days, lastEast, yerr = lastStdEasts, fmt = "o-", ecolor = "b", markersize = 14, capsize = 13, linewidth = 3)
+        ax2.legend(["Standard Desviation (BLUE)"], loc = "upper right")
+        ax2.set_ylim([np.min(lastEast)-1.5*abs(np.max(lastStdEasts)), np.max(lastEast)+1.5*abs(np.max(lastStdEasts))])
+        ax2.set_xlim([-1, len(days)+10])
+        ax2.grid(True)
+
+        ax3.set_ylabel("Up - Down (m)", fontsize = 20)
+        ax3.errorbar(days, lastUp, yerr = lastStdUps, fmt = "o-", ecolor = "b", markersize = 14, capsize = 13, linewidth = 3)
+        ax3.legend(["Standard Desviation (BLUE)"], loc = "upper right")
+        ax3.set_ylim([np.min(lastUp)-1.5*abs(np.max(lastStdUps)), np.max(lastUp)+1.5*abs(np.max(lastStdUps))])
+        ax3.set_xlim([-1, len(days)+10])
+        ax3.set_xlabel("Days", fontsize = 40) 
+        ax3.grid(True)
+        
+        plt.savefig("ENU2.png")
         
     
     # This function creates a file and stores all the relevant data in columns:
-    def createDataFile(measurementsStartTime, latitudes, longitudes, heights, north, east, up, stdNorth, stdEast, stdUp, errNorth, errEast, errUp):
+    def createDataFileENU1(measurementsStartTime, latitudes, longitudes, heights, north, east, up, stdNorth, stdEast, stdUp, errNorth, errEast, errUp):
         os.chdir(resultsFilesDir)
         # Define the header text and adjust formatting
-        header = f"{'Year/Month/Day'}   {'Mean Latitude(º)'}   {'Mean Longitude(º)'}   {'Mean Height(m)'}   {'North-South(m)'}   {'East-West(m)'}   {'Up-Down(m)'}   {'Std North(m)'}   {'Std East(m)'}   {'Std Up(m)'}   {'Error North(m)'}   {'Error East(m)'}   {'Error Up(m)'}"
+        header = f"{'Year/Month/Day'}   {'Mean-Latitude(º)'}   {'Mean-Longitude(º)'}   {'Mean-Height(m)'}   {'North-South(m)'}   {'East-West(m)'}   {'Up-Down(m)'}   {'Std-North(m)'}   {'Std-East(m)'}   {'Std-Up(m)'}   {'Error-North(m)'}   {'Error-East(m)'}   {'Error-Up(m)'}\n\n"
         
         time = []
         for t in measurementsStartTime:
             time.append(str(t.year)+"/"+str(t.month)+"/"+str(t.day)+" "+"12:00:00")
         
-        data = np.column_stack((time, latitudes, longitudes, heights, north, east, up, stdNorth, stdEast, stdUp, errNorth, errEast, errUp))
+        data = np.column_stack((time, latitudes, longitudes, heights, north, east, up, stdNorth, stdEast, stdUp, errNorth, errEast, np.char.add(np.array(errUp).astype(str), "\n")))
 
         # Save the data to a file with a header
-        np.savetxt("data.txt", data, delimiter="   ", header=header, comments="", fmt = ["%s"]*13)
-    
+        np.savetxt("dataENU1.txt", data, delimiter="    ", header=header, comments="", fmt = ["%s"]*13)
+   
+    def createDataFileENU2(measurementsStartTime, lastLatitudes, lastLongitudes, lastHeights, lastNorth, lastEast, lastUp, lastStdNorths, lastStdEasts, lastStdUps):
+        os.chdir(resultsFilesDir)
+        # Define the header text and adjust formatting
+        header = f"{'Year/Month/Day'}   {'Last-Latitude(º)'}   {'Last-Longitude(º)'}   {'Last-Height(m)'}   {'North-South(m)'}   {'East-West(m)'}   {'Up-Down(m)'}   {'Std-North(m)'}   {'Std-East(m)'}   {'Std-Up(m)'}\n\n"
+        
+        time = []
+        for t in measurementsStartTime:
+            time.append(str(t.year)+"/"+str(t.month)+"/"+str(t.day)+" "+"12:00:00")
+        
+        data = np.column_stack((time, lastLatitudes, lastLongitudes, lastHeights, lastNorth, lastEast, lastUp, lastStdNorths, lastStdEasts, np.char.add(np.array(lastStdUps).astype(str), "\n")))
+
+        # Save the data to a file with a header
+        np.savetxt("dataENU2.txt", data, delimiter="    ", header=header, comments="", fmt = ["%s"]*10)
     
 """
 We login to CDDIS NASA:
@@ -752,6 +813,8 @@ corresponding folders:
 """
 
 for file in tqdm(os.listdir(satFilesDir), desc = "Converting raw satellite data files to RINEX files..."):
+    if os.path.isfile(os.path.join(obsFilesDir, file.split(".")[0]+".o")) == True:
+        continue
     fileName = file.split(".")[0]
     os.chdir(satFilesDir)
     obsFile = fileName + ".o"
@@ -837,6 +900,12 @@ h = [] # heights list (meters)
 stdNorth = []
 stdEast = []
 stdUp = []
+lastLat = []
+lastLon =[]
+lastH = []
+lastStdNorth = []
+lastStdEast = []
+lastStdUp = []
 latMin = []
 latMax = []
 lonMin = []
@@ -848,13 +917,20 @@ for posFile in tqdm(os.listdir(posFilesDir), desc = "Obtaining and filtering dat
     utcTime, latitude, longitude, height, stdN, stdE, stdU = pos.readPosFile(posFile)
     
     effLatMean, effLonMean, effHeightMean, effLatMinMax, effLonMinMax, effHeightMinMax = pos.effectivePosData(utcTime, latitude, longitude, height)
+    effStdNorth, effStdEast, effStdUp, _, __, ___ = pos.effectivePosData(utcTime, stdN[0], stdE[0], stdU[0])
     
     lat.append([utcTime[0], effLatMean])
     lon.append([utcTime[0], effLonMean])
     h.append([utcTime[0], effHeightMean])
-    stdNorth.append(abs(stdN[0, -1]) + abs(stdN[1, -1]))
-    stdEast.append(abs(stdE[0, -1]) + abs(stdE[1, -1]))
-    stdUp.append(abs(stdU[0, -1]) + abs(stdU[1, -1]))
+    stdNorth.append([utcTime[0], effStdNorth])
+    stdEast.append([utcTime[0], effStdEast])
+    stdUp.append([utcTime[0], effStdUp])
+    lastLat.append([utcTime[0], latitude[-1]])
+    lastLon.append([utcTime[0], longitude[-1]])
+    lastH.append([utcTime[0], height[-1]])
+    lastStdNorth.append([utcTime[0], abs(stdN[0, -1])])
+    lastStdEast.append([utcTime[0], abs(stdE[0, -1])])
+    lastStdUp.append([utcTime[0], abs(stdU[0, -1])])
     latMin.append(effLatMinMax[0])
     latMax.append(effLatMinMax[1])
     lonMin.append(effLonMinMax[0])
@@ -865,10 +941,25 @@ for posFile in tqdm(os.listdir(posFilesDir), desc = "Obtaining and filtering dat
 lat = sorted(lat, key=lambda x: x[0])
 lon = sorted(lon, key=lambda x: x[0])
 h = sorted(h, key=lambda x: x[0])
+lastLat = sorted(lastLat, key=lambda x: x[0])
+lastLon = sorted(lastLon, key=lambda x: x[0])
+lastH = sorted(lastH, key=lambda x: x[0])
+stdNorth = sorted(stdNorth, key=lambda x: x[0])
+stdEast = sorted(stdEast, key=lambda x: x[0])
+stdUp = sorted(stdUp, key=lambda x: x[0])
 
 latitudes = []
 longitudes = []
 heights = []
+lastLatitudes = []
+lastLongitudes = []
+lastHeights = []
+stdNorths = []
+stdEasts = []
+stdUps = []
+lastStdNorths = []
+lastStdEasts = []
+lastStdUps = []
 measurementsStartTime = [] # daytime objects, the first index is the first day, the last index is the last day
 
 for k in lat:
@@ -877,6 +968,25 @@ for k in lon:
     longitudes.append(k[1])
 for k in h:
     heights.append(k[1])
+for k in lastLat:
+    lastLatitudes.append(k[1])
+for k in lastLon:
+    lastLongitudes.append(k[1])
+for k in lastH:
+    lastHeights.append(k[1])
+for k in stdNorth:
+    stdNorths.append(k[1])
+for k in stdEast:
+    stdEasts.append(k[1])
+for k in stdUp:
+    stdUps.append(k[1])
+for k in lastStdNorth:
+    lastStdNorths.append(k[1])
+for k in lastStdEast:
+    lastStdEasts.append(k[1])
+for k in lastStdUp:
+    lastStdUps.append(k[1])
+    
 for k in h:
     measurementsStartTime.append(k[0])
     
@@ -884,17 +994,22 @@ east, north, up, _, __, ___ = pos.geo2enu(latitudes, longitudes, heights)
 _, __, ___, maxEast, maxNorth, maxUp = pos.geo2enu(latMax, lonMax, heightMax)
 _, __, ___, minEast, minNorth, minUp = pos.geo2enu(latMin, lonMin, heightMin)
 
-errEast = np.array(maxEast) - np.array(minEast)
-errNorth = np.array(maxNorth) - np.array(minNorth)
-errUp = np.array(maxUp) - np.array(minUp)
+errEast = np.abs(np.array(maxEast) - np.array(minEast))
+errNorth = np.abs(np.array(maxNorth) - np.array(minNorth))
+errUp = np.abs(np.array(maxUp) - np.array(minUp))
 
+lastEast, lastNorth, lastUp, lastX, lastY, lastZ = pos.geo2enu(lastLatitudes, lastLongitudes, lastHeights)
 
 """
 We plot the data:  
 """
 
-pos.plotData(measurementsStartTime, east, north, up, stdEast, stdNorth, stdUp, errEast, errNorth, errUp)
-pos.createDataFile(measurementsStartTime, latitudes, longitudes, heights, north, east, up, stdNorth, stdEast, stdUp, errNorth, errEast, errUp)
+pos.plotDataENU1(measurementsStartTime, east, north, up, stdEasts, stdNorths, stdUps, errEast, errNorth, errUp)
+pos.plotDataENU2(measurementsStartTime, lastEast, lastNorth, lastUp, lastStdEasts, lastStdNorths, lastStdUps)
+pos.createDataFileENU1(measurementsStartTime, latitudes, longitudes, heights, north, east, up, stdNorths, stdEasts, stdUps, errNorth, errEast, errUp)
+pos.createDataFileENU2(measurementsStartTime, lastLatitudes, lastLongitudes, lastHeights, lastNorth, lastEast, lastUp, lastStdNorths, lastStdEasts, lastStdUps)
+
+
 
 
 
