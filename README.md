@@ -17,5 +17,7 @@ Introduce the **atxFiles** folder inside the **data** folder. If you have your o
 3.) If you don't have an account created in CDDIS NASA create it here: https://urs.earthdata.nasa.gov/users/new
 
 4.) Install WinRAR from this link: https://www.winrar.es/descargas. Set WinRAR to your environment variables.
+
+5.) Create an Spyder (python 3.10) environment from Anaconda, if you don't have Anaconda installed, install it from here: https://www.anaconda.com/download. To create an Spyder environment just click the the button install Spyder in the Anaconda navigator.
  
-5.) Finally run the python code **PPPStatic.py**, a window will pop up, select the **rawSatelliteFiles** folder, and finally introduce your CDDIS NASA credentials in the terminal. *If the code doesn't work try installing **TEQC** for your Windows system and introducing **teqc.exe** inside the **bin** folder (replacing the already existent *teqc.exe*).
+6.) Finally run the python code **PPPStatic.py**, a window will pop up, select the **rawSatelliteFiles** folder, and finally introduce your CDDIS NASA credentials in the terminal. If the code doesn't work try installing **TEQC** for your Windows system and introducing **teqc.exe** inside the **bin** folder (replacing the already existent *teqc.exe*).
