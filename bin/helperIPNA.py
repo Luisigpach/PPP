@@ -18,11 +18,11 @@ root.withdraw()
 rawSatFilesDir = filedialog.askdirectory(title="Select the directory containing all the raw satellite data files to uncompress if needed")
 satFilesDir = os.path.join(os.path.dirname(rawSatFilesDir), "rawSatelliteFiles")
 try:
-    os.makedirs(satFilesDir)
+    os.makedirs(rawSatFilesDir)
 except FileExistsError:
     pass
 
-for folder in os.listdir(satFilesDir):
+for folder in os.listdir(rawSatFilesDir):
     folderDir = os.path.join(rawSatFilesDir, folder)
     
     for file in os.listdir(os.path.join(rawSatFilesDir, folder)):
