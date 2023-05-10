@@ -625,7 +625,7 @@ class pos:
         latDPoly = latPoly.deriv()
         latRoots = fsolve(latDPoly, x0=np.array([0, 300]))
         effLat1 = np.array(latitude[int(np.ceil(latRoots[1])):])
-        effLat1Coeffs = np.polyfit(range(0, len(effLat1)), effLat1, 10)
+        effLat1Coeffs = np.polyfit(range(0, len(effLat1)), effLat1, 3)
         effLat1Fix = np.polyval(effLat1Coeffs, range(0, len(effLat1)))
         effLatErr = 0.25*np.abs(np.std(effLat1Fix))
         effLatIndex = np.abs(effLat1 - effLat1Fix) < effLatErr
@@ -708,31 +708,32 @@ class pos:
         os.chdir(resultsGraphsDir)
         # Plot the north, east, and upward components over time
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize = (20, 20))
-        ax1.errorbar(days, north, yerr = errNorth, fmt = "o-", ecolor = "r", markersize = 14, capsize = 13, linewidth = 3)
-        ax1.errorbar(days, north, yerr = stdNorth, fmt = "o-", ecolor = "b", markersize = 12, capsize = 13, linewidth = 3)
-        ax1.legend(["Standard Desviation (BLUE)", "Model Error (RED)"], loc = "upper right")
-        ax1.set_ylim([np.min(north)-1.5*abs(np.max(errNorth)), np.max(north)+1.5*abs(np.max(errNorth))])
+        ax1.errorbar(days, 100*north, yerr = 100*np.array(stdNorth), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 12, capsize = 13, linewidth = 3, color = "b")
+        ax1.errorbar(days, 100*north, yerr = 100*errNorth, fmt = "o-", ecolor = "r", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "r")
+        ax1.legend(["Standard Desviation (BLUE)", "Model Error (RED)"], loc = "upper right", fontsize = 16)
+        ax1.set_ylim([100*np.min(north)-1.5*100*abs(np.max(errNorth)), 100*np.max(north)+1.5*100*abs(np.max(errNorth))])
         ax1.set_xlim([-1, len(days)+10])
-        ax1.set_ylabel('North - South (m)', fontsize = 20)     
+        ax1.set_ylabel('North - South (mm)', fontsize = 20)     
         ax1.set_title("Measurements starts on " + firstDay + " and ends on " + lastDay + " (The measurements take place during " + str(numberOfDays) + " days)", fontsize = 20)
         ax1.grid(True)
 
-        ax2.set_ylabel("East - West (m)", fontsize = 20)
-        ax2.errorbar(days, east, yerr = errEast, fmt = "o-", ecolor = "r", markersize = 14, capsize = 13, linewidth = 3)
-        ax2.errorbar(days, east, yerr = stdEast, fmt = "o-", ecolor = "b", markersize = 12, capsize = 13, linewidth = 3)
+        ax2.set_ylabel("East - West (mm)", fontsize = 20)
+        ax2.errorbar(days, 100*east, yerr = 100*np.array(stdEast), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 12, capsize = 13, linewidth = 3, color = "b")
+        ax2.errorbar(days, 100*east, yerr = 100*errEast, fmt = "o-", ecolor = "r", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "r")
      
-        ax2.legend(["Standard Desviation (BLUE)", "Model Error (RED)"], loc = "upper right")
-        ax2.set_ylim([np.min(east)-1.5*abs(np.max(errEast)), np.max(east)+1.5*abs(np.max(errEast))])
+        ax2.legend(["Standard Desviation (BLUE)", "Model Error (RED)"], loc = "upper right", fontsize = 16)
+        ax2.set_ylim([100*np.min(east)-1.5*100*abs(np.max(errEast)), 100*np.max(east)+1.5*100*abs(np.max(errEast))])
         ax2.set_xlim([-1, len(days)+10])
         ax2.grid(True)
 
-        ax3.set_ylabel("Up - Down (m)", fontsize = 20)
-        ax3.errorbar(days, up, yerr = errUp, fmt = "o-", ecolor = "r", markersize = 14, capsize = 13, linewidth = 3)
-        ax3.errorbar(days, up, yerr = stdUp, fmt = "o-", ecolor = "b", markersize = 12, capsize = 13, linewidth = 3)
-        ax3.legend(["Standard Desviation (BLUE)", "Model Error (RED)"], loc = "upper right")
-        ax3.set_ylim([np.min(up)-1.5*abs(np.max(errUp)), np.max(up)+1.5*abs(np.max(errUp))])
+        ax3.set_ylabel("Up - Down (mm)", fontsize = 20)
+        ax3.errorbar(days, 100*up, yerr = 100*np.array(stdUp), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 12, capsize = 13, linewidth = 3, color = "b")
+        ax3.errorbar(days, 100*up, yerr = 100*errUp, fmt = "o-", ecolor = "r", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "r")
+        ax3.legend(["Standard Desviation (BLUE)", "Model Error (RED)"], loc = "upper right", fontsize = 16)
+        ax3.set_ylim([100*np.min(up)-1.5*100*abs(np.max(errUp)), 100*np.max(up)+1.5*100*abs(np.max(errUp))])
         ax3.set_xlim([-1, len(days)+10])
         ax3.set_xlabel("Days", fontsize = 40) 
+        ax3.set_xticks(days, days, fontsize =15)
         ax3.grid(True)
         
         plt.savefig("ENU1.png")
@@ -746,30 +747,72 @@ class pos:
         os.chdir(resultsGraphsDir)
         # Plot the north, east, and upward components over time
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize = (20, 20))
-        ax1.errorbar(days, lastNorth, yerr = lastStdNorths, fmt = "o-", ecolor = "b", markersize = 14, capsize = 13, linewidth = 3)
-        ax1.legend(["Standard Desviation (BLUE)"], loc = "upper right")
-        ax1.set_ylim([np.min(lastNorth)-1.5*abs(np.max(lastStdNorths)), np.max(lastNorth)+1.5*abs(np.max(lastStdNorths))])
+        ax1.errorbar(days, 100*lastNorth, yerr = 100*np.array(lastStdNorths), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3)
+        ax1.legend(["Standard Desviation (BLUE)"], loc = "upper right", fontsize = 16)
+        ax1.set_ylim([100*np.min(lastNorth)-1.5*100*abs(np.max(lastStdNorths)), 100*np.max(lastNorth)+1.5*100*abs(np.max(lastStdNorths))])
         ax1.set_xlim([-1, len(days)+10])
-        ax1.set_ylabel('North - South (m)', fontsize = 20)     
+        ax1.set_ylabel('North - South (mm)', fontsize = 20)     
         ax1.set_title("Measurements starts on " + firstDay + " and ends on " + lastDay + " (The measurements take place during " + str(numberOfDays) + " days)", fontsize = 20)
         ax1.grid(True)
 
-        ax2.set_ylabel("East - West (m)", fontsize = 20)
-        ax2.errorbar(days, lastEast, yerr = lastStdEasts, fmt = "o-", ecolor = "b", markersize = 14, capsize = 13, linewidth = 3)
-        ax2.legend(["Standard Desviation (BLUE)"], loc = "upper right")
-        ax2.set_ylim([np.min(lastEast)-1.5*abs(np.max(lastStdEasts)), np.max(lastEast)+1.5*abs(np.max(lastStdEasts))])
+        ax2.set_ylabel("East - West (mm)", fontsize = 20)
+        ax2.errorbar(days, 100*lastEast, yerr = 100*np.array(lastStdEasts), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3)
+        ax2.legend(["Standard Desviation (BLUE)"], loc = "upper right", fontsize = 16)
+        ax2.set_ylim([100*np.min(lastEast)-1.5*100*abs(np.max(lastStdEasts)), 100*np.max(lastEast)+1.5*100*abs(np.max(lastStdEasts))])
         ax2.set_xlim([-1, len(days)+10])
         ax2.grid(True)
 
-        ax3.set_ylabel("Up - Down (m)", fontsize = 20)
-        ax3.errorbar(days, lastUp, yerr = lastStdUps, fmt = "o-", ecolor = "b", markersize = 14, capsize = 13, linewidth = 3)
-        ax3.legend(["Standard Desviation (BLUE)"], loc = "upper right")
-        ax3.set_ylim([np.min(lastUp)-1.5*abs(np.max(lastStdUps)), np.max(lastUp)+1.5*abs(np.max(lastStdUps))])
+        ax3.set_ylabel("Up - Down (mm)", fontsize = 20)
+        ax3.errorbar(days, 100*lastUp, yerr = 100*np.array(lastStdUps), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3)
+        ax3.legend(["Standard Desviation (BLUE)"], loc = "upper right", fontsize = 16)
+        ax3.set_ylim([100*np.min(lastUp)-1.5*100*abs(np.max(lastStdUps)), 100*np.max(lastUp)+1.5*100*abs(np.max(lastStdUps))])
         ax3.set_xlim([-1, len(days)+10])
         ax3.set_xlabel("Days", fontsize = 40) 
+        ax3.set_xticks(days, days, fontsize = 15)
         ax3.grid(True)
         
         plt.savefig("ENU2.png")
+        
+    def plotDataENU3(measurementsStartTime, east, north, up, stdEast, stdNorth, stdUp, errEast, errNorth, errUp, lastEast, lastNorth, lastUp, lastStdEasts, lastStdNorths, lastStdUps):
+        days = np.arange(0, len(measurementsStartTime))
+        firstDay = str(measurementsStartTime[0].day) + "/" + str(measurementsStartTime[0].month) + "/" + str(measurementsStartTime[0].year)
+        lastDay = str(measurementsStartTime[-1].day) + "/" + str(measurementsStartTime[-1].month) + "/" + str(measurementsStartTime[-1].year)
+        numberOfDays = len(measurementsStartTime)
+        
+        os.chdir(resultsGraphsDir)
+        # Plot the north, east, and upward components over time
+        fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, sharex=True, figsize = (20, 20))
+        ax1.errorbar(days, 100*north, yerr = 100*errNorth, fmt = "o-", ecolor = "r", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "r")
+        ax1.errorbar(days, 100*north, yerr = 100*np.array(stdNorth), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 12, capsize = 13, linewidth = 3, color = "b")
+        ax1.errorbar(days, 100*lastNorth, yerr = 100*np.array(lastStdNorths), fmt = "o-", ecolor = "g", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "g")
+        ax1.legend(["Model Error (Red)", "Standard Desviation (Blue)", "Last Measurement (Green)"], loc = "upper right", fontsize = 16)
+        ax1.set_ylim([100*np.min(north)-1.5*100*abs(np.max(errNorth)), 100*np.max(north)+1.5*100*abs(np.max(errNorth))])
+        ax1.set_xlim([-1, len(days)+10])
+        ax1.set_ylabel('North - South (mm)', fontsize = 20)     
+        ax1.set_title("Measurements starts on " + firstDay + " and ends on " + lastDay + " (The measurements take place during " + str(numberOfDays) + " days)", fontsize = 20)
+        ax1.grid(True)
+
+        ax2.set_ylabel("East - West (mm)", fontsize = 20)
+        ax2.errorbar(days, 100*east, yerr = 100*errEast, fmt = "o-", ecolor = "r", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "r")
+        ax2.errorbar(days, 100*east, yerr = 100*np.array(stdEast), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 12, capsize = 13, linewidth = 3, color = "b")
+        ax2.errorbar(days, 100*lastEast, yerr = 100*np.array(lastStdEasts), fmt = "o-", ecolor = "g", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "g")
+        ax2.legend(["Model Error (Red)", "Standard Desviation (Blue)", "Last Measurement (Green)"], loc = "upper right", fontsize = 16)
+        ax2.set_ylim([100*np.min(east)-1.5*100*abs(np.max(errEast)), 100*np.max(east)+1.5*100*abs(np.max(errEast))])
+        ax2.set_xlim([-1, len(days)+10])
+        ax2.grid(True)
+
+        ax3.set_ylabel("Up - Down (mm)", fontsize = 20)
+        ax3.errorbar(days, 100*up, yerr = 100*errUp, fmt = "o-", ecolor = "r", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "r")
+        ax3.errorbar(days, 100*up, yerr = 100*np.array(stdUp), fmt = "o-", ecolor = "b", linestyle = "None", markersize = 12, capsize = 13, linewidth = 3, color = "b")
+        ax3.errorbar(days, 100*lastUp, yerr = 100*np.array(lastStdUps), fmt = "o-", ecolor = "g", linestyle = "None", markersize = 14, capsize = 13, linewidth = 3, color = "g")
+        ax3.legend(["Model Error (Red)", "Standard Desviation (Blue)", "Last Measurement (Green)"], loc = "upper right", fontsize = 16)
+        ax3.set_ylim([100*np.min(up)-1.5*100*abs(np.max(errUp)), 100*np.max(up)+1.5*100*abs(np.max(errUp))])
+        ax3.set_xlim([-1, len(days)+10])
+        ax3.set_xlabel("Days", fontsize = 40) 
+        ax3.set_xticks(days, days, fontsize =15)
+        ax3.grid(True)
+        
+        plt.savefig("ENU3.png")
         
     
     # This function creates a file and stores all the relevant data in columns:
@@ -853,6 +896,8 @@ observation file which has a different time of first observation, and we get
 """
 
 for i, obs in tqdm(enumerate(os.listdir(obsFilesDir)), desc = "Creating .pos files..."):
+    if os.path.isfile(os.path.join(posFilesDir, obs.split(".")[0] + ".pos")) == True:
+        continue
     firstObsTime = firstObsTimeArr[i]
     gpsTime = firstObsTime[0]
     utcTime = firstObsTime[1]
@@ -1006,6 +1051,7 @@ We plot the data:
 
 pos.plotDataENU1(measurementsStartTime, east, north, up, stdEasts, stdNorths, stdUps, errEast, errNorth, errUp)
 pos.plotDataENU2(measurementsStartTime, lastEast, lastNorth, lastUp, lastStdEasts, lastStdNorths, lastStdUps)
+pos.plotDataENU3(measurementsStartTime, east, north, up, stdEasts, stdNorths, stdUps, errEast, errNorth, errUp, lastEast, lastNorth, lastUp, lastStdEasts, lastStdNorths, lastStdUps)
 pos.createDataFileENU1(measurementsStartTime, latitudes, longitudes, heights, north, east, up, stdNorths, stdEasts, stdUps, errNorth, errEast, errUp)
 pos.createDataFileENU2(measurementsStartTime, lastLatitudes, lastLongitudes, lastHeights, lastNorth, lastEast, lastUp, lastStdNorths, lastStdEasts, lastStdUps)
 
